@@ -1,0 +1,25 @@
+R_DEF: Internal format may change without notice
+local
+color amber_500
+color emerald_500
+color indigo_500
+color indigo_700
+color purple_500
+color rose_500
+color slate_900
+color white
+drawable ic_launcher_background
+drawable ic_launcher_foreground
+mipmap ic_launcher
+mipmap ic_launcher_round
+string add_habit
+string analytics
+string app_name
+string dashboard
+string get_started
+string mood_tracker
+string productivity
+string profile
+string streak
+string tagline
+style Theme.LifeGraph

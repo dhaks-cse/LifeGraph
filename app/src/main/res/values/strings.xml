@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">LifeGraph</string>
+    <string name="tagline">Personal Growth Visualizer</string>
+    <string name="dashboard">Home</string>
+    <string name="analytics">Analytics</string>
+    <string name="profile">Profile</string>
+    <string name="add_habit">New Habit</string>
+    <string name="mood_tracker">Mood Tracker</string>
+    <string name="streak">Streak</string>
+    <string name="productivity">Productivity</string>
+    <string name="get_started">Get Started</string>
+</resources>
