@@ -1,3 +1,4 @@
+
 package com.lifegraph.app.ui.theme
 
 import android.app.Activity
@@ -12,12 +13,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// ─── Brand Colors ─────────────────────────────────────────────────────────────
+// ─── Brand Colors ─────────────────────────────────────────────
 val Indigo50 = Color(0xFFEEF2FF)
 val Indigo100 = Color(0xFFE0E7FF)
 val Indigo400 = Color(0xFF818CF8)
@@ -50,7 +49,7 @@ val Slate800 = Color(0xFF1E293B)
 val Slate900 = Color(0xFF0F172A)
 val Slate950 = Color(0xFF020617)
 
-// ─── Light Color Scheme ───────────────────────────────────────────────────────
+// ─── Light Color Scheme ──────────────────────────────────────
 private val LightColorScheme = lightColorScheme(
     primary = Indigo500,
     onPrimary = Color.White,
@@ -78,7 +77,7 @@ private val LightColorScheme = lightColorScheme(
     outlineVariant = Slate200,
 )
 
-// ─── Dark Color Scheme ────────────────────────────────────────────────────────
+// ─── Dark Color Scheme ───────────────────────────────────────
 private val DarkColorScheme = darkColorScheme(
     primary = Indigo400,
     onPrimary = Color(0xFF1E1B4B),
@@ -112,21 +111,31 @@ fun LifeGraphTheme(
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
+
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            if (darkTheme)
+                dynamicDarkColorScheme(context)
+            else
+                dynamicLightColorScheme(context)
         }
+
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
 
     val view = LocalView.current
+
     if (!view.isInEditMode) {
         SideEffect {
+
             val window = (view.context as Activity).window
             window.statusBarColor = Color.Transparent.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+
+            WindowCompat
+                .getInsetsController(window, view)
+                .isAppearanceLightStatusBars = !darkTheme
         }
     }
 
@@ -138,46 +147,56 @@ fun LifeGraphTheme(
 }
 
 val Typography = Typography(
+
     displayLarge = TextStyle(
         fontWeight = FontWeight.Bold,
         fontSize = 57.sp,
         lineHeight = 64.sp,
         letterSpacing = (-0.25).sp
     ),
+
     headlineLarge = TextStyle(
         fontWeight = FontWeight.Bold,
         fontSize = 32.sp,
         lineHeight = 40.sp
     ),
+
     headlineMedium = TextStyle(
         fontWeight = FontWeight.SemiBold,
         fontSize = 28.sp,
         lineHeight = 36.sp
     ),
+
     titleLarge = TextStyle(
         fontWeight = FontWeight.SemiBold,
         fontSize = 22.sp,
         lineHeight = 28.sp
     ),
+
     titleMedium = TextStyle(
         fontWeight = FontWeight.Medium,
         fontSize = 16.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.15.sp
     ),
+
     bodyLarge = TextStyle(
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp
     ),
+
     bodyMedium = TextStyle(
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         lineHeight = 20.sp
     ),
+
     labelLarge = TextStyle(
         fontWeight = FontWeight.Medium,
         fontSize = 14.sp,
         lineHeight = 20.sp
     )
 )
+
+

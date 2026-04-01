@@ -1,34 +1,25 @@
+
 package com.lifegraph.app.ui.dashboard
 
-import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.*
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.unit.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.lifegraph.app.model.*
-import com.lifegraph.app.ui.theme.*
 import com.lifegraph.app.viewmodel.LifeGraphViewModel
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.foundation.Canvas
+import com.lifegraph.app.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,20 +30,24 @@ fun DashboardScreen(
     onAnalytics: () -> Unit,
     onProfile: () -> Unit
 ) {
+
     val habitsWithLogs by viewModel.habitsWithLogs.collectAsState()
     val productivityScore by viewModel.productivityScore.collectAsState()
     val todayMood by viewModel.todayMood.collectAsState()
 
     Scaffold(
+        containerColor = PureBlack,
+
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onAddHabit,
-                icon = { Icon(Icons.Default.Add, contentDescription = "Add Habit") },
+                icon = { Icon(Icons.Default.Add,null) },
                 text = { Text("New Habit") },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
+                containerColor = PurpleAccent,
+                contentColor = Color.White
             )
         },
+
         bottomBar = {
             BottomNavigationBar(
                 currentRoute = "dashboard",
@@ -61,14 +56,16 @@ fun DashboardScreen(
                 onProfile = onProfile
             )
         }
-    ) { paddingValues ->
+
+    ) { padding ->
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(bottom = 24.dp)
+                .background(PureBlack)
+                .padding(padding)
         ) {
-            // Header
+
             item {
                 DashboardHeader(
                     greeting = viewModel.greeting,
@@ -77,423 +74,311 @@ fun DashboardScreen(
                 )
             }
 
-            // Productivity + Mood row
             item {
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+
                     ProductivityCard(
                         score = productivityScore,
                         modifier = Modifier.weight(1f)
                     )
+
                     MoodCard(
                         todayMood = todayMood,
                         onClick = onMoodTracker,
                         modifier = Modifier.weight(1f)
                     )
                 }
+
                 Spacer(modifier = Modifier.height(20.dp))
             }
 
-            // Section header
             item {
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
+
                     Text(
                         "Today's Habits",
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Bold
-                        )
+                        color = TextPrimary,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
                     )
+
                     Text(
-                        "${habitsWithLogs.count { it.isCompletedToday }}/${habitsWithLogs.size} done",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        "${habitsWithLogs.count { it.isCompletedToday }}/${habitsWithLogs.size}",
+                        color = TextMuted
                     )
                 }
+
                 Spacer(modifier = Modifier.height(12.dp))
             }
 
-            if (habitsWithLogs.isEmpty()) {
-                item {
-                    EmptyHabitsCard(onAddHabit)
-                }
-            } else {
-                items(habitsWithLogs, key = { it.habit.id }) { habitWithLog ->
-                    HabitCard(
-                        habitWithLog = habitWithLog,
-                        onToggle = { viewModel.toggleHabit(habitWithLog.habit.id, habitWithLog.habit.targetValue) },
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 5.dp)
-                    )
-                }
+            items(habitsWithLogs, key = { it.habit.id }) { habit ->
+
+                HabitCard(
+                    habitWithLog = habit,
+                    onToggle = {
+                        viewModel.toggleHabit(
+                            habit.habit.id,
+                            habit.habit.targetValue
+                        )
+                    }
+                )
             }
         }
     }
 }
 
 @Composable
-private fun DashboardHeader(
-    greeting: String,
-    date: String,
-    onProfile: () -> Unit
+fun DashboardHeader(
+    greeting:String,
+    date:String,
+    onProfile:() -> Unit
 ) {
-    Box(
+
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                        MaterialTheme.colorScheme.background
-                    )
-                )
-            )
-            .padding(start = 20.dp, end = 20.dp, top = 56.dp, bottom = 24.dp)
+            .padding(20.dp),
+
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+
+        Column {
+
+            Text(
+                greeting,
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold,
+                color = TextPrimary
+            )
+
+            Text(
+                date,
+                color = TextMuted
+            )
+        }
+
+        IconButton(
+            onClick = onProfile,
+            modifier = Modifier
+                .size(42.dp)
+                .background(
+                    PurpleAccent.copy(alpha = 0.2f),
+                    CircleShape
+                )
         ) {
-            Column {
-                Text(
-                    text = greeting,
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                )
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = date,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            IconButton(
-                onClick = onProfile,
-                modifier = Modifier
-                    .size(44.dp)
-                    .background(
-                        MaterialTheme.colorScheme.primaryContainer,
-                        CircleShape
-                    )
-            ) {
-                Icon(
-                    Icons.Default.Person,
-                    contentDescription = "Profile",
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
+
+            Icon(
+                Icons.Default.Person,
+                null,
+                tint = PurpleAccent
+            )
         }
     }
 }
 
 @Composable
 fun ProductivityCard(
-    score: Float,
-    modifier: Modifier = Modifier
+    score:Float,
+    modifier:Modifier = Modifier
 ) {
-    val animatedScore by animateFloatAsState(
-        targetValue = score,
-        animationSpec = tween(1000, easing = EaseOutCubic),
-        label = "score"
+
+    val animated by animateFloatAsState(
+        score,
+        animationSpec = tween(1000),
+        label = ""
     )
 
-    val scoreColor = when {
-        score >= 70f -> Emerald500
-        score >= 40f -> Amber500
-        else -> Rose500
-    }
-
     Card(
-        modifier = modifier,
+        modifier,
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+
+        colors = CardDefaults.cardColors(
+            containerColor = GlassCard
+        ),
+
+        border = BorderStroke(
+            1.dp,
+            GlassBorder
+        )
     ) {
+
         Column(
             modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
             Text(
                 "Productivity",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = TextMuted
             )
-            Spacer(modifier = Modifier.height(12.dp))
 
-            Box(contentAlignment = Alignment.Center, modifier = Modifier.size(80.dp)) {
-                Canvas(modifier = Modifier.size(80.dp)) {
-                    val strokeWidth = 8.dp.toPx()
-                    val sweepAngle = (animatedScore / 100f) * 270f
+            Spacer(Modifier.height(12.dp))
+
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.size(80.dp)
+            ) {
+
+                Canvas(Modifier.size(80.dp)) {
+
+                    val stroke = 10.dp.toPx()
+
                     drawArc(
-                        color = Color.Gray.copy(alpha = 0.15f),
+                        color = Color.DarkGray,
                         startAngle = 135f,
                         sweepAngle = 270f,
                         useCenter = false,
-                        style = Stroke(strokeWidth, cap = StrokeCap.Round)
+                        style = Stroke(stroke)
                     )
+
                     drawArc(
-                        color = scoreColor,
+                        brush = Brush.linearGradient(
+                            listOf(
+                                PurpleAccent,
+                                BlueAccent
+                            )
+                        ),
                         startAngle = 135f,
-                        sweepAngle = sweepAngle,
+                        sweepAngle = (animated/100f)*270f,
                         useCenter = false,
-                        style = Stroke(strokeWidth, cap = StrokeCap.Round)
+                        style = Stroke(stroke)
                     )
                 }
+
                 Text(
-                    text = "${animatedScore.toInt()}%",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = scoreColor
-                    )
+                    "${animated.toInt()}%",
+                    color = TextPrimary,
+                    fontWeight = FontWeight.Bold
                 )
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = when {
-                    score >= 70f -> "Great! 🎉"
-                    score >= 40f -> "Keep going!"
-                    else -> "Let's start!"
-                },
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
     }
 }
 
 @Composable
-private fun MoodCard(
+fun MoodCard(
     todayMood: MoodLog?,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onClick:()->Unit,
+    modifier:Modifier
 ) {
+
     Card(
-        modifier = modifier.clickable(onClick = onClick),
+        modifier.clickable { onClick() },
+
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+
+        colors = CardDefaults.cardColors(
+            containerColor = GlassCard
+        ),
+
+        border = BorderStroke(1.dp,GlassBorder)
     ) {
+
         Column(
             modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
             Text(
-                "Today's Mood",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                "Mood",
+                color = TextMuted
             )
-            Spacer(modifier = Modifier.height(12.dp))
 
-            Box(
-                modifier = Modifier
-                    .size(80.dp)
-                    .background(
-                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
-                        RoundedCornerShape(20.dp)
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = todayMood?.moodType?.emoji ?: "🎯",
-                    fontSize = 36.sp
-                )
-            }
+            Spacer(Modifier.height(12.dp))
 
-            Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = todayMood?.moodType?.label ?: "Tap to log",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                todayMood?.moodType?.emoji ?: "🙂",
+                fontSize = 36.sp
+            )
+
+            Spacer(Modifier.height(6.dp))
+
+            Text(
+                todayMood?.moodType?.label ?: "Tap to log",
+                color = TextSecondary
             )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HabitCard(
     habitWithLog: HabitWithLog,
-    onToggle: () -> Unit,
-    modifier: Modifier = Modifier
+    onToggle: () -> Unit
 ) {
-    val habit = habitWithLog.habit
-    val isCompleted = habitWithLog.isCompletedToday
-    val colorHex = habit.colorHex
-    val accentColor = try {
-        Color(android.graphics.Color.parseColor(colorHex))
-    } catch (e: Exception) {
-        MaterialTheme.colorScheme.primary
-    }
 
-    val checkScale by animateFloatAsState(
-        targetValue = if (isCompleted) 1f else 0f,
-        animationSpec = spring(Spring.DampingRatioMediumBouncy),
-        label = "check"
-    )
+    val habit = habitWithLog.habit
+    val done = habitWithLog.isCompletedToday
 
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+
         shape = RoundedCornerShape(18.dp),
+
         colors = CardDefaults.cardColors(
-            containerColor = if (isCompleted)
-                accentColor.copy(alpha = 0.08f)
-            else
-                MaterialTheme.colorScheme.surface
+            containerColor = GlassCard
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (isCompleted) 0.dp else 2.dp),
-        border = if (isCompleted) BorderStroke(1.5.dp, accentColor.copy(alpha = 0.3f)) else null
+
+        border = BorderStroke(1.dp,GlassBorder)
     ) {
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
+
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Emoji + color badge
-            Box(
-                modifier = Modifier
-                    .size(52.dp)
-                    .background(accentColor.copy(alpha = 0.15f), RoundedCornerShape(14.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = habit.iconEmoji, fontSize = 24.sp)
-            }
 
-            Spacer(modifier = Modifier.width(14.dp))
+            Text(
+                habit.iconEmoji,
+                fontSize = 24.sp
+            )
 
-            Column(modifier = Modifier.weight(1f)) {
+            Spacer(Modifier.width(12.dp))
+
+            Column(Modifier.weight(1f)) {
+
                 Text(
-                    text = habit.name,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        color = if (isCompleted)
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                        else
-                            MaterialTheme.colorScheme.onSurface
-                    ),
+                    habit.name,
+                    color = TextPrimary,
+                    fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.height(4.dp))
 
-                // Progress bar
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(5.dp)
-                        .clip(RoundedCornerShape(2.5.dp))
-                        .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(if (isCompleted) 1f else 0f)
-                            .fillMaxHeight()
-                            .background(accentColor, RoundedCornerShape(2.5.dp))
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(4.dp))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Text(
-                        text = "🔥 ${habit.streak} day streak",
-                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        "•",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = 12.sp
-                    )
-                    Text(
-                        text = "${habit.targetValue} ${habit.targetUnit}",
-                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                Text(
+                    "🔥 ${habit.streak} day streak",
+                    color = TextMuted,
+                    fontSize = 12.sp
+                )
             }
 
-            Spacer(modifier = Modifier.width(12.dp))
-
-            // Toggle button
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(
-                        if (isCompleted) accentColor else MaterialTheme.colorScheme.surfaceVariant,
-                        CircleShape
-                    )
-                    .clickable(onClick = onToggle),
-                contentAlignment = Alignment.Center
+            IconButton(
+                onClick = onToggle
             ) {
-                if (isCompleted) {
-                    Icon(
-                        Icons.Default.Check,
-                        contentDescription = "Completed",
-                        tint = Color.White,
-                        modifier = Modifier.size(20.dp)
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .size(16.dp)
-                            .border(
-                                2.dp,
-                                MaterialTheme.colorScheme.outline,
-                                CircleShape
-                            )
-                    )
-                }
-            }
-        }
-    }
-}
 
-@Composable
-private fun EmptyHabitsCard(onAddHabit: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text("🌱", fontSize = 48.sp)
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                "No habits yet!",
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-            )
-            Text(
-                "Start building your growth journey",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedButton(onClick = onAddHabit) {
-                Text("Add your first habit")
+                Icon(
+                    if(done) Icons.Default.Check else Icons.Outlined.Circle,
+                    null,
+                    tint = if(done) GreenDone else TextMuted
+                )
             }
         }
     }
@@ -501,47 +386,36 @@ private fun EmptyHabitsCard(onAddHabit: () -> Unit) {
 
 @Composable
 fun BottomNavigationBar(
-    currentRoute: String,
-    onDashboard: () -> Unit,
-    onAnalytics: () -> Unit,
-    onProfile: () -> Unit
-) {
+    currentRoute:String,
+    onDashboard:()->Unit,
+    onAnalytics:()->Unit,
+    onProfile:()->Unit
+){
+
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surface,
-        tonalElevation = 8.dp
-    ) {
+        containerColor = GlassCard
+    ){
+
         NavigationBarItem(
-            selected = currentRoute == "dashboard",
+            selected = currentRoute=="dashboard",
             onClick = onDashboard,
-            icon = {
-                Icon(
-                    if (currentRoute == "dashboard") Icons.Filled.Home else Icons.Outlined.Home,
-                    contentDescription = "Home"
-                )
-            },
+            icon = { Icon(Icons.Default.Home,null) },
             label = { Text("Home") }
         )
+
         NavigationBarItem(
-            selected = currentRoute == "analytics",
+            selected = currentRoute=="analytics",
             onClick = onAnalytics,
-            icon = {
-                Icon(
-                    if (currentRoute == "analytics") Icons.Filled.BarChart else Icons.Outlined.BarChart,
-                    contentDescription = "Analytics"
-                )
-            },
+            icon = { Icon(Icons.Default.BarChart,null) },
             label = { Text("Analytics") }
         )
+
         NavigationBarItem(
-            selected = currentRoute == "profile",
+            selected = currentRoute=="profile",
             onClick = onProfile,
-            icon = {
-                Icon(
-                    if (currentRoute == "profile") Icons.Filled.Person else Icons.Outlined.Person,
-                    contentDescription = "Profile"
-                )
-            },
+            icon = { Icon(Icons.Default.Person,null) },
             label = { Text("Profile") }
         )
     }
 }
+
