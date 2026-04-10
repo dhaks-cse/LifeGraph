@@ -1,6 +1,6 @@
 LifeGraph
 
-LifeGraph is an Android app that helps users track habits, monitor mood, and visualize personal productivity.
+LifeGraph is an Android app built in Kotlin that helps users track habits, monitor mood, and visualize personal productivity.
 
 Features:
 - Habit tracking
@@ -15,3 +15,5 @@ Tech Stack
 - MVVM Architecture
 - Room Database
 - MPAndroidChart
+
+
